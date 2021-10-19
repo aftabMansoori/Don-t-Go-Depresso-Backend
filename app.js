@@ -18,9 +18,15 @@ mongoose
     .then(() => { console.log('Database Connected') })
     .catch((err) => { console.log('databaseError: ',err) })
 
+
+//Routers
+const collegeRouter = require('./routes/college')
+
 app.get('/', (req, res) => {
     res.status(200).json({ 'status': 'Ok' })
 })
+
+app.use('/college', collegeRouter)
 
 app.listen(PORT, () => {
     console.log(`Server is live at ${PORT}`)

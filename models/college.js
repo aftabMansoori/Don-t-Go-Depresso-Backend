@@ -22,7 +22,7 @@ const collegeSchema = new mongoose.Schema({
     collegeLocation: {
         type: String
     },
-    studentMails: [{type: Schema.Types.ObjectId, ref: StudentMails}]
+    // studentMails: [{type: Schema.Types.ObjectId, ref: StudentMails}]
 })
 
 module.exports = mongoose.model('College', collegeSchema)
