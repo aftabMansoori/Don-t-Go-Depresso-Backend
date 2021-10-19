@@ -18,7 +18,6 @@ mongoose
     .then(() => { console.log('Database Connected') })
     .catch((err) => { console.log('databaseError: ',err) })
 
-
 app.get('/', (req, res) => {
     res.status(200).json({ 'status': 'Ok' })
 })
