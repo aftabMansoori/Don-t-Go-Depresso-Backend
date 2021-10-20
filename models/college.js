@@ -12,6 +12,10 @@ const collegeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    password: {
+        type: String,
+        required: true
+    },
     collegePhoneNo: {
         type: Number,
         required: true
@@ -23,6 +27,10 @@ const collegeSchema = new mongoose.Schema({
         type: String
     },
     // studentMails: [{type: Schema.Types.ObjectId, ref: StudentMails}]
+    registeredDate: {
+        type: Date,
+        default: Date.now
+    }
 })
 
 module.exports = mongoose.model('College', collegeSchema)
