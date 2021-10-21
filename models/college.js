@@ -1,8 +1,5 @@
 const mongoose = require('mongoose')
 
-//Models
-const StudentMails = require('./studentMails')
-
 const collegeSchema = new mongoose.Schema({
     collegeCode: {
         type: Number,
@@ -26,10 +23,17 @@ const collegeSchema = new mongoose.Schema({
     collegeLocation: {
         type: String
     },
-    // studentMails: [{type: Schema.Types.ObjectId, ref: StudentMails}]
+    studentMails: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'StudentMails'
+    },
     registeredDate: {
         type: Date,
         default: Date.now
+    },
+    role: {
+        type: String,
+        default: 'college'
     }
 })
 

@@ -6,6 +6,10 @@ const studenMailsSchema = new mongoose.Schema({
     },
     studentClgCode: {
         type: String
+    },
+    studentClg: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'College'
     }
 })
 

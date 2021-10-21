@@ -17,6 +17,10 @@ const counsellorSchema = new mongoose.Schema({
     },
     aboutCounsellor: {
         type: String
+    },
+    role: {
+        type: String,
+        default: 'counsellor'
     }
 })
 
