@@ -38,12 +38,14 @@ app.use(passport.session())
 
 //Routers
 const collegeRouter = require('./routes/college')
+const studentRouter = require('./routes/student')
 
 app.get('/', (req, res) => {
     res.status(200).json({ 'status': 'Ok' })
 })
 
 app.use('/college', collegeRouter)
+app.use('/student', studentRouter)
 
 app.listen(PORT, () => {
     console.log(`Server is live at ${PORT}`)
