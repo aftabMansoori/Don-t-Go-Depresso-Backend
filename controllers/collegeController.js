@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt')
 const passport = require('passport')
 
 const College = require('../models/college')
+const StudentMails = require('../models/studentMails')
 
 exports.signup = async (req, res) => {
     const { collegeCode, collegeName, password, confPassword, collegePhoneNo, collegeAddress, collegeLocation } = req.body
@@ -36,12 +37,11 @@ exports.signup = async (req, res) => {
 }
 
 exports.signin = (req, res, next) => {
-    passport.authenticate('local', {
+    passport.authenticate('college', {
         successRedirect: '/college',
-        failureRedirect: '/college/login',
+        failureRedirect: '/',
         failureFlash: true
-    })(req, res, next);
-    res.json('Login successful')
+    })(req, res, next)
 }
 
 exports.signout = (req, res) => {
@@ -51,4 +51,35 @@ exports.signout = (req, res) => {
     } catch {
         res.status(401).json({'msg': 'Signing Out failed'})
     }
+}
+
+exports.studentMails = async (req, res) => {
+    let { studentMail } = req.body
+    let mail = await StudentMails.findOne({ studentMail })
+    if (mail) {
+        res.status(400).json({ 'msg': 'Mail already exists' })
+    } else {
+        mail = new StudentMails({ studentMail })
+        mail.save()
+          .then(async () => {
+              let college = await College.findOne({ collegeCode: req.user.collegeCode })
+              college.studentMails.push(mail)
+              college.save()
+              res.status(201).json({ 'msg': 'Student email saved' })
+          })
+          .catch((err) => {
+              res.status(400).json({ 'msg': 'There was an error saving the email' })
+              console.log(err)
+          })
+    }
+}
+
+exports.getMails = async (req, res) => {
+    College.find({ collegeCode: req.user.collegeCode })
+        .populate('studentMails')
+        .exec((err, college) => {
+            if (err) throw err
+            console.log(college)
+            res.json({ 'studentMails': college[0].studentMails})
+        })
 }
