@@ -41,7 +41,7 @@ const collegeRouter = require('./routes/college')
 const studentRouter = require('./routes/student')
 
 app.get('/', (req, res) => {
-    res.status(200).json({ 'status': 'Ok' })
+    res.status(200).json({ 'status': 'Site is live : Ok' })
 })
 
 app.use('/college', collegeRouter)

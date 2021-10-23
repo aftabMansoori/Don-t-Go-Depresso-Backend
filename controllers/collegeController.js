@@ -59,7 +59,7 @@ exports.studentMails = async (req, res) => {
     if (mail) {
         res.status(400).json({ 'msg': 'Mail already exists' })
     } else {
-        mail = new StudentMails({ studentMail })
+        mail = new StudentMails({ studentMail, studentClg: req.user.collegeName })
         mail.save()
           .then(async () => {
               let college = await College.findOne({ collegeCode: req.user.collegeCode })
@@ -76,10 +76,9 @@ exports.studentMails = async (req, res) => {
 
 exports.getMails = async (req, res) => {
     College.find({ collegeCode: req.user.collegeCode })
-        .populate('studentMails')
+        .populate('studentMails','studentMail')
         .exec((err, college) => {
             if (err) throw err
-            console.log(college)
-            res.json({ 'studentMails': college[0].studentMails})
+            res.json(college[0].studentMails)
         })
 }

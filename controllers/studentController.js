@@ -56,3 +56,18 @@ exports.signout = (req, res) => {
         res.status(401).json({'msg': 'Signing Out failed'})
     }
 }
+
+exports.studentProfile = async (req, res) => {
+    const { studentName, studentPRN, studentClass, studentPhoneNo, studentAge, aboutStudent } = req.body
+    const student = await StudentMails.findOne({ studentMail: req.user.studentClgEmail })
+    studentClgName = student.studentClg
+    Student.findOneAndUpdate({ studentClgEmail: req.user.studentClgEmail }, {
+        studentName, studentPRN, studentClass, studentPhoneNo, studentAge, aboutStudent, studentClgName
+    }).then(() => {
+        res.json({ 'msg': 'Profile Saved' })
+        console.log(student)
+    }).catch((e) => {
+        res.json({ "msg": "There was an error while saving" })
+        console.log(err)
+    })
+}

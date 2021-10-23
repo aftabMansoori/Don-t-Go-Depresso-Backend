@@ -8,7 +8,7 @@ const studenMailsSchema = new mongoose.Schema({
         type: String
     },
     studentClg: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'College'
     }
 })
