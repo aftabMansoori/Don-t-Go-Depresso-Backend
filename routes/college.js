@@ -12,6 +12,6 @@ router.get('/get-emails', collegeController.getMails)
 
 router.post('/signup', collegeController.signup)
 router.post('/signin', collegeController.signin)
-router.post('/student-mails', collegeController.studentMails)
+router.post('/add-emails', collegeController.studentMails)
 
 module.exports = router

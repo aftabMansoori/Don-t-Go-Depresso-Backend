@@ -1,52 +1,64 @@
-require('dotenv').config()
+require("dotenv").config();
 
-const express = require('express')
-const app = express()
+const express = require("express");
+const app = express();
 
-const mongoose = require('mongoose')
-const helmet = require('helmet')
-const passport = require('passport')
-const session = require('express-session')
+const mongoose = require("mongoose");
+const helmet = require("helmet");
+const passport = require("passport");
+const session = require("express-session");
+const cors = require("cors");
 
 //Passport Config
-require('./config/passport')(passport)
+require("./config/passport")(passport);
 
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 5000;
 
-app.use(helmet())
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(helmet());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 //Mongoose Connection
 mongoose
-    .connect(process.env.DATABASE || 'mongodb://localhost:27017/dontGoDepresso')
-    .then(() => { console.log('Database Connected') })
-    .catch((err) => { console.log('databaseError: ',err) })
+  .connect(process.env.DATABASE || "mongodb://localhost:27017/dontGoDepresso")
+  .then(() => {
+    console.log("Database Connected");
+  })
+  .catch((err) => {
+    console.log("databaseError: ", err);
+  });
 
 //Express Session
 app.use(
-    session({
-        secret: process.env.SECRET || 'secret',
-        resave: true,
-        saveUninitialized: true
-    })
-)
+  session({
+    secret: process.env.SECRET || "secret",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
 
 //passport middleware
-app.use(passport.initialize())
-app.use(passport.session())
+app.use(passport.initialize());
+app.use(passport.session());
 
 //Routers
-const collegeRouter = require('./routes/college')
-const studentRouter = require('./routes/student')
+const collegeRouter = require("./routes/college");
+const studentRouter = require("./routes/student");
+const counsellorRouter = require("./routes/counsellor");
 
-app.get('/', (req, res) => {
-    res.status(200).json({ 'status': 'Site is live : Ok' })
-})
+app.get("/", (req, res) => {
+  res.status(200).json({ status: "Site is live : Ok" });
+});
 
-app.use('/college', collegeRouter)
-app.use('/student', studentRouter)
+app.use("/college", collegeRouter);
+app.use("/student", studentRouter);
+app.use("/counsellor", counsellorRouter);
 
 app.listen(PORT, () => {
-    console.log(`Server is live at ${PORT}`)
-})
+  console.log(`Server is live at ${PORT}`);
+});
