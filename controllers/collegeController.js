@@ -4,7 +4,8 @@ const passport = require("passport");
 const College = require("../models/college");
 const StudentMails = require("../models/studentMails");
 
-exports.signup = async (req, res) => {
+const { catchAsync } = require("../Utils/ErrorHandling");
+exports.signup = catchAsync(async (req, res) => {
   const {
     collegeCode,
     collegeName,
@@ -14,40 +15,28 @@ exports.signup = async (req, res) => {
     collegeAddress,
     collegeLocation,
   } = req.body.college;
-  let college = await College.findOne({ collegeCode });
-  if (college) {
-    res.status(400).json(collegeName + " already registered");
+  if (password === confPassword) {
+    let college = new College({
+      collegeCode,
+      collegeName,
+      password,
+      collegePhoneNo,
+      collegeAddress,
+      collegeLocation,
+    });
+    college.password = await bcrypt.hash(password, parseInt(process.env.Salt));
+    const collegeCreated = await college.save();
+    res.status(201).json({
+      status: "Successful",
+      message: collegeCreated.collegeName + " registered successfully",
+    });
   } else {
-    if (password === confPassword) {
-      college = new College({
-        collegeCode,
-        collegeName,
-        password,
-        collegePhoneNo,
-        collegeAddress,
-        collegeLocation,
-      });
-      bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(password, salt, (err, hash) => {
-          if (err) throw err;
-          college.password = hash;
-          college
-            .save()
-            .then(() => {
-              res.status(201).json(collegeName + " registered successfully");
-              // console.log(college)
-            })
-            .catch((err) => {
-              console.log(err);
-              res.status(400).json({ msg: "There was an error" });
-            });
-        });
-      });
-    } else {
-      res.status(400).json({ msg: "Password do not match" });
-    }
+    res.status(400).json({
+      status: "Error",
+      message: "Password is incorrect",
+    });
   }
-};
+});
 
 exports.signin = (req, res, next) => {
   // passport.authenticate("college", {
@@ -74,41 +63,41 @@ exports.signin = (req, res, next) => {
 exports.signout = (req, res) => {
   try {
     req.logout();
-    res.status(200).json({ msg: "signout Successfully" });
+    res.status(200).json({ message: "signout Successfully" });
   } catch {
-    res.status(401).json({ msg: "Signing Out failed" });
+    res.status(401).json({ message: "Signing Out failed" });
   }
 };
 
-exports.studentMails = async (req, res) => {
+exports.studentMails = catchAsync(async (req, res) => {
   let { studentMail } = req.body;
   let mail = await StudentMails.findOne({ studentMail });
   if (mail) {
-    res.status(400).json({ msg: "Mail already exists" });
-  } else {
-    mail = new StudentMails({ studentMail, studentClg: req.user.collegeName });
-    mail
-      .save()
-      .then(async () => {
-        let college = await College.findOne({
-          collegeCode: req.user.collegeCode,
-        });
-        college.studentMails.push(mail);
-        college.save();
-        res.status(201).json({ msg: "Student email saved" });
-      })
-      .catch((err) => {
-        res.status(400).json({ msg: "There was an error saving the email" });
-        console.log(err);
-      });
-  }
-};
-
-exports.getMails = async (req, res) => {
-  College.find({ collegeCode: req.user.collegeCode })
-    .populate("studentMails", "studentMail")
-    .exec((err, college) => {
-      if (err) throw err;
-      res.json(college[0].studentMails);
+    res.status(400).json({
+      status: "Error",
+      message: "Mail already exists",
     });
-};
+  } else {
+    mail = await new StudentMails({
+      studentMail,
+      studentClg: req.user.collegeName,
+    }).save();
+    let college = await College.findOne({ collegeCode: req.user.collegeCode });
+    college.studentMails.push(mail);
+    college.save();
+    res.status(201).json({
+      status: "Successful",
+      message: "Student email saved",
+    });
+  }
+});
+
+exports.getMails = catchAsync(async (req, res) => {
+  let college = await College.find({
+    collegeCode: req.user.collegeCode,
+  }).populate("studentMails", "studentMail");
+  res.status(200).json({
+    status: "Successful",
+    mails: college[0].studentMails,
+  });
+});

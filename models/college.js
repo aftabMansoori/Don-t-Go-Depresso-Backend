@@ -4,6 +4,7 @@ const collegeSchema = new mongoose.Schema({
   collegeCode: {
     type: Number,
     required: true,
+    unique: true,
   },
   collegeName: {
     type: String,

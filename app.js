@@ -50,6 +50,7 @@ app.use(passport.session());
 const collegeRouter = require("./routes/college");
 const studentRouter = require("./routes/student");
 const counsellorRouter = require("./routes/counsellor");
+const { errorHandling } = require("./Utils/ErrorHandling");
 
 app.get("/", (req, res) => {
   res.status(200).json({ status: "Site is live : Ok" });
@@ -58,6 +59,7 @@ app.get("/", (req, res) => {
 app.use("/college", collegeRouter);
 app.use("/student", studentRouter);
 app.use("/counsellor", counsellorRouter);
+errorHandling(app);
 
 app.listen(PORT, () => {
   console.log(`Server is live at ${PORT}`);
