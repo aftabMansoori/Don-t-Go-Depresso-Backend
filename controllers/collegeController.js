@@ -5,6 +5,7 @@ const College = require("../models/college");
 const StudentMails = require("../models/studentMails");
 
 const { catchAsync } = require("../Utils/ErrorHandling");
+
 exports.signup = catchAsync(async (req, res) => {
   const {
     collegeCode,
@@ -39,11 +40,6 @@ exports.signup = catchAsync(async (req, res) => {
 });
 
 exports.signin = (req, res, next) => {
-  // passport.authenticate("college", {
-  //   successRedirect: "/college",
-  //   failureRedirect: "/",
-  //   failureFlash: true,
-  // })(req, res, next);
   passport.authenticate("college", function (err, user) {
     if (err) {
       return next(err);

@@ -53,12 +53,13 @@ const counsellorRouter = require("./routes/counsellor");
 const { errorHandling } = require("./Utils/ErrorHandling");
 
 app.get("/", (req, res) => {
-  res.status(200).json({ status: "Site is live : Ok" });
+  res.status(200).json({ status: "successful", message: "Site is live" });
 });
 
 app.use("/college", collegeRouter);
 app.use("/student", studentRouter);
 app.use("/counsellor", counsellorRouter);
+
 errorHandling(app);
 
 app.listen(PORT, () => {
