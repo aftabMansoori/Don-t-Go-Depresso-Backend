@@ -9,7 +9,7 @@ const passport = require("passport");
 // const session = require('express-session')
 
 //Passport Config
-require("./config/passport")(passport);
+require("./config/passport");
 
 const PORT = process.env.PORT || 5000;
 

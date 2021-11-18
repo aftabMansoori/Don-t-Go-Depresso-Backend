@@ -29,20 +29,25 @@ exports.signup = catchAsync(async (req, res) => {
 });
 
 exports.signin = (req, res, next) => {
-  passport.authenticate("student", { session: false }, (err, user, info) => {
+  passport.authenticate("local", { session: false }, (err, user, info) => {
     if (err || !user) {
       return res.status(400).json({
         message: info ? info.message : "Login failed",
         user: user,
       });
     }
-
-    req.login(user, { session: false }, async (err) => {
-      if (err) throw err;
-      const token = await jwt.sign(user, process.env.SECRET);
-      console.log(token);
-      return res.status(200).json({ user, token });
-    });
+    const token =  jwt.sign({id:user._id.toJSON()},process.env.SECRET,{expiresIn: 604800});
+    res.status(200).json({
+    message : info.message,
+    token : token,
+    user  : user  
+  })
+    // req.login(user, { session: false }, async (err) => {
+    //   if (err) throw err;
+    //   const token = await jwt.sign(user, process.env.SECRET);
+    //   console.log(token);
+    //   return res.status(200).json({ user, token });
+    // });
   })(req, res, next);
 };
 
