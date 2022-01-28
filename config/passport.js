@@ -1,83 +1,90 @@
+const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
+const passportJWT = require("passport-jwt");
+const JWTStrategy = passportJWT.Strategy;
+const ExtractJWT = passportJWT.ExtractJwt;
 
 // Load User model
 const College = require("../models/college");
 const Student = require("../models/student");
 
-module.exports = function (passport) {
-  passport.use(
-    "college",
-    new LocalStrategy(
-      { usernameField: "collegeCode" },
-      (collegeCode, password, done) => {
-        College.findOne({
-          collegeCode: collegeCode,
-        }).then((college) => {
-          if (!college) {
-            return done(null, false); //{ message: 'College is not registered' }
-          }
-          bcrypt.compare(password, college.password, (err, isMatch) => {
-            if (err) throw err;
-            if (isMatch) {
-              return done(null, college);
-            } else {
-              return done(null, false); //{ message : 'Password incorrect' }
-            }
-          });
-        });
+const authenticateUser = (req, username, password, done) => {
+  if (req.body.role === "college") {
+    College.findOne({
+      collegeCode: username,
+    }).then((college) => {
+      if (!college) {
+        return done(null, false, { message: "College is not registered" });
       }
-    )
-  );
-
-  passport.use(
-    "student",
-    new LocalStrategy(
-      { usernameField: "studentClgEmail" },
-      (studentClgEmail, password, done) => {
-        Student.findOne({
-          studentClgEmail,
-        }).then((student) => {
-          if (!student) {
-            return done(null, false);
-          }
-          bcrypt.compare(password, student.password, (err, isMatch) => {
-            if (err) throw err;
-            if (isMatch) return done(null, student);
-            else return done(null, false);
+      bcrypt.compare(password, college.password, (err, isMatch) => {
+        if (err) throw err;
+        if (isMatch) {
+          return done(null, college, { message: "Login Successful" });
+        } else {
+          return done(null, false, {
+            message: "Username or password is incorrect",
           });
-        });
+        }
+      });
+    });
+  } else if (req.body.role === "student") {
+    Student.findOne({
+      studentClgEmail: username,
+    }).then((student) => {
+      if (!student) {
+        return done(null, false, { message: "Student is not registered" });
       }
-    )
-  );
-
-  passport.serializeUser(function (user, done) {
-    done(null, { id: user.id, role: user.role });
-  });
-
-  passport.deserializeUser(function (obj, done) {
-    switch (obj.role) {
-      case "student":
-        Student.findById(obj.id).then((student) => {
-          if (student) {
-            done(null, student);
-          } else {
-            done(new Error("student id not found:" + obj.id, null));
-          }
-        });
-        break;
-      case "college":
-        College.findById(obj.id).then((college) => {
-          if (college) {
-            done(null, college);
-          } else {
-            done(new Error("college id not found:" + obj.id, null));
-          }
-        });
-        break;
-      default:
-        done(new Error("no entity role:" + obj.role), null);
-        break;
-    }
-  });
+      bcrypt.compare(password, student.password, (err, isMatch) => {
+        if (err) throw err;
+        if (isMatch)
+          return done(null, student, { message: "Login Successful" });
+        else
+          return done(null, false, {
+            message: "Username or password is incorrect",
+          });
+      });
+    });
+  }
 };
+
+passport.use(
+  "local",
+  new LocalStrategy(
+    {
+      usernameField: "username",
+      passwordField: "password",
+      passReqToCallback: true,
+    },
+    authenticateUser
+  )
+);
+
+passport.use(
+  new JWTStrategy(
+    {
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.SECRET,
+    },
+    (jwtPayload, done) => {
+      if (jwtPayload.role == "student")
+        return Student.findById(jwtPayload.id)
+          .select("-password")
+          .then((user) => {
+            return done(null, user);
+          })
+          .catch((err) => {
+            return done(err);
+          });
+      else jwtPayload.role == "college";
+      return College.findById(jwtPayload.id)
+        .select("-password")
+        .then((user) => {
+          return done(null, user);
+        })
+        .catch((err) => {
+          return done(err);
+        });
+    }
+  )
+);

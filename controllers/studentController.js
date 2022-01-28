@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const passport = require("passport");
+const jwt = require("jsonwebtoken");
 
 const Student = require("../models/student");
 const StudentMails = require("../models/studentMails");
@@ -18,10 +19,7 @@ exports.signup = catchAsync(async (req, res) => {
         studentClgCode,
         password,
       });
-      student.password = await bcrypt.hash(
-        password,
-        parseInt(process.env.Salt)
-      );
+      student.password = await bcrypt.hash(password, 10);
       await student.save();
       res.status(201).json({ message: "Student registered successfully" });
     } else {
@@ -31,20 +29,23 @@ exports.signup = catchAsync(async (req, res) => {
 });
 
 exports.signin = (req, res, next) => {
-  passport.authenticate("student", function (err, user) {
-    if (err) {
-      return next(err);
+  passport.authenticate("local", { session: false }, (err, user, info) => {
+    if (err || !user) {
+      return res.status(400).json({
+        message: info ? info.message : "Login failed",
+        user: user,
+      });
     }
-    if (!user) {
-      return res.status(400).json("User not found");
-    }
-    req.logIn(user, function (err) {
-      if (err) {
-        return next(err);
-      }
-      return res
-        .status(200)
-        .json({ status: "Success", message: "Signin Successfull" });
+    req.login(user, { session: false }, async (err) => {
+      if (err) throw err;
+      const token = jwt.sign({ id: user._id.toJSON() }, process.env.SECRET, {
+        expiresIn: 604800,
+      });
+      res.status(200).json({
+        message: info.message,
+        token: token,
+        user: user,
+      });
     });
   })(req, res, next);
 };
@@ -66,15 +67,12 @@ exports.studentProfile = catchAsync(async (req, res) => {
     studentPhoneNo,
     studentAge,
     aboutStudent,
-  } = req.body.profile;
-  console.log("*************");
-  console.log(req.user);
+  } = req.body;
   const student = await StudentMails.findOne({
     studentMail: req.user.studentClgEmail,
   });
   studentClgName = student.studentClg;
-  console.log("Student", student);
-  Student.findOneAndUpdate(
+  await Student.findOneAndUpdate(
     { studentClgEmail: req.user.studentClgEmail },
     {
       studentName,
@@ -83,10 +81,10 @@ exports.studentProfile = catchAsync(async (req, res) => {
       studentPhoneNo,
       studentAge,
       aboutStudent,
-      studentClgName,
+      // studentClgName,
     }
   );
-  res.status(201).json({
+  res.json({
     status: "Successful",
     message: "Profile Saved",
   });

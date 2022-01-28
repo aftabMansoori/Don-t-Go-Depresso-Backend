@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const passport = require("passport");
+const jwt = require("jsonwebtoken");
 
 const College = require("../models/college");
 const StudentMails = require("../models/studentMails");
@@ -40,20 +41,41 @@ exports.signup = catchAsync(async (req, res) => {
 });
 
 exports.signin = (req, res, next) => {
-  passport.authenticate("college", function (err, user) {
-    if (err) {
-      return next(err);
+  passport.authenticate("local", { session: false }, (err, user, info) => {
+    if (err || !user) {
+      return res.status(400).json({
+        message: info ? info.message : "Login failed",
+        user: user,
+      });
     }
-    if (!user) {
-      return res.status(400).json("User not found");
-    }
-    req.logIn(user, function (err) {
-      if (err) {
-        return next(err);
-      }
-      return res.status(200).json(user);
+    req.login(user, { session: false }, async (err) => {
+      if (err) throw err;
+      const token = jwt.sign({ id: user._id.toJSON() }, process.env.SECRET, {
+        expiresIn: 604800,
+      });
+      res.status(200).json({
+        message: info.message,
+        token: token,
+        user: user,
+      });
     });
   })(req, res, next);
+  // passport.authenticate("local", { session: false }, (user, info, err) => {
+  //   if (err || !user) {
+  //     return res.status(400).json({
+  //       message: info ? info.message : "Login failed",
+  //       user: user,
+  //     });
+  //   }
+  //   req.login(user, { session: false }, (err) => {
+  //     if (err) throw err;
+  //     const token = jwt.sign({ id: user._id.toJSON() }, process.env.SECRET, {
+  //       expiresIn: 604800,
+  //     });
+  //     console.log(token);
+  //     return res.status(200).json({ user, token });
+  //   });
+  // })(req, res, next);
 };
 
 exports.signout = (req, res) => {

@@ -6,22 +6,16 @@ const app = express();
 const mongoose = require("mongoose");
 const helmet = require("helmet");
 const passport = require("passport");
-const session = require("express-session");
-const cors = require("cors");
+// const session = require('express-session')
 
 //Passport Config
-require("./config/passport")(passport);
+require("./config/passport");
 
 const PORT = process.env.PORT || 5000;
 
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(
-  cors({
-    origin: "*",
-  })
-);
 
 //Mongoose Connection
 mongoose
@@ -34,32 +28,28 @@ mongoose
   });
 
 //Express Session
-app.use(
-  session({
-    secret: process.env.SECRET || "secret",
-    resave: true,
-    saveUninitialized: true,
-  })
-);
+// app.use(
+//     session({
+//         secret: process.env.SECRET || 'secret',
+//         resave: true,
+//         saveUninitialized: true
+//     })
+// )
 
 //passport middleware
 app.use(passport.initialize());
-app.use(passport.session());
-
+// app.use(passport.session())
 //Routers
 const collegeRouter = require("./routes/college");
 const studentRouter = require("./routes/student");
-const counsellorRouter = require("./routes/counsellor");
 const { errorHandling } = require("./Utils/ErrorHandling");
 
 app.get("/", (req, res) => {
-  res.status(200).json({ status: "successful", message: "Site is live" });
+  res.status(200).json({ status: "Site is live : Ok" });
 });
 
 app.use("/college", collegeRouter);
 app.use("/student", studentRouter);
-app.use("/counsellor", counsellorRouter);
-
 errorHandling(app);
 
 app.listen(PORT, () => {
