@@ -36,18 +36,17 @@ exports.signin = (req, res, next) => {
         user: user,
       });
     }
-    const token =  jwt.sign({id:user._id.toJSON()},process.env.SECRET,{expiresIn: 604800});
-    res.status(200).json({
-    message : info.message,
-    token : token,
-    user  : user  
-  })
-    // req.login(user, { session: false }, async (err) => {
-    //   if (err) throw err;
-    //   const token = await jwt.sign(user, process.env.SECRET);
-    //   console.log(token);
-    //   return res.status(200).json({ user, token });
-    // });
+    req.login(user, { session: false }, async (err) => {
+      if (err) throw err;
+      const token = jwt.sign({ id: user._id.toJSON() }, process.env.SECRET, {
+        expiresIn: 604800,
+      });
+      res.status(200).json({
+        message: info.message,
+        token: token,
+        user: user,
+      });
+    });
   })(req, res, next);
 };
 
@@ -73,7 +72,7 @@ exports.studentProfile = catchAsync(async (req, res) => {
     studentMail: req.user.studentClgEmail,
   });
   studentClgName = student.studentClg;
-  let createdStudent = await Student.findOneAndUpdate(
+  await Student.findOneAndUpdate(
     { studentClgEmail: req.user.studentClgEmail },
     {
       studentName,
@@ -82,7 +81,7 @@ exports.studentProfile = catchAsync(async (req, res) => {
       studentPhoneNo,
       studentAge,
       aboutStudent,
-      studentClgName,
+      // studentClgName,
     }
   );
   res.json({

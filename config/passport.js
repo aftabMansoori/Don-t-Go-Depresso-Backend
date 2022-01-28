@@ -9,28 +9,28 @@ const ExtractJWT = passportJWT.ExtractJwt;
 const College = require("../models/college");
 const Student = require("../models/student");
 
-const authenticateUser =  (req,username, password , done) => {
-  if(req.body.role=="college"){
-  College.findOne({
-    collegeCode: username,
-  }).then((college) => {
-    if (!college) {
-      return done(null, false, { message: "College is not registered" });
-    }
-    bcrypt.compare(password, college.password, (err, isMatch) => {
-      if (err) throw err;
-      if (isMatch) {
-        return done(null, college, { message: "Login Successful" });
-      } else {
-        return done(null, false , {
-          message: "Username or password is incorrect",
-        });
+const authenticateUser = (req, username, password, done) => {
+  if (req.body.role === "college") {
+    College.findOne({
+      collegeCode: username,
+    }).then((college) => {
+      if (!college) {
+        return done(null, false, { message: "College is not registered" });
       }
+      bcrypt.compare(password, college.password, (err, isMatch) => {
+        if (err) throw err;
+        if (isMatch) {
+          return done(null, college, { message: "Login Successful" });
+        } else {
+          return done(null, false, {
+            message: "Username or password is incorrect",
+          });
+        }
+      });
     });
-  });
-  }else if(req.body.role == "student"){
+  } else if (req.body.role === "student") {
     Student.findOne({
-      studentClgEmail : username
+      studentClgEmail: username,
     }).then((student) => {
       if (!student) {
         return done(null, false, { message: "Student is not registered" });
@@ -46,43 +46,45 @@ const authenticateUser =  (req,username, password , done) => {
       });
     });
   }
-}
+};
+
 passport.use(
-    "local",
-    new LocalStrategy(
-      { usernameField: "username", passwordField: "password", passReqToCallback: true },
-      authenticateUser
-    )
-  );
+  "local",
+  new LocalStrategy(
+    {
+      usernameField: "username",
+      passwordField: "password",
+      passReqToCallback: true,
+    },
+    authenticateUser
+  )
+);
+
 passport.use(
-    new JWTStrategy(
-      {
-        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-        secretOrKey: process.env.SECRET,
-      },
-      (jwtPayload, done) => {
-        if(jwtPayload.role=="student")
-        return (
-          Student.findById(jwtPayload.id)
-            .select("-password")
-            .then((user) => {
-              return done(null, user);
-            })
-            .catch((err) => {
-              return done(err);
-            })
-        );
-        else (jwtPayload.role=="college")
-        return (
-          College.findById(jwtPayload.id)
-            .select("-password")
-            .then((user) => {
-              return done(null, user);
-            })
-            .catch((err) => {
-              return done(err);
-            })
-        );
-      }
-    )
-  );
+  new JWTStrategy(
+    {
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+      secretOrKey: process.env.SECRET,
+    },
+    (jwtPayload, done) => {
+      if (jwtPayload.role == "student")
+        return Student.findById(jwtPayload.id)
+          .select("-password")
+          .then((user) => {
+            return done(null, user);
+          })
+          .catch((err) => {
+            return done(err);
+          });
+      else jwtPayload.role == "college";
+      return College.findById(jwtPayload.id)
+        .select("-password")
+        .then((user) => {
+          return done(null, user);
+        })
+        .catch((err) => {
+          return done(err);
+        });
+    }
+  )
+);
