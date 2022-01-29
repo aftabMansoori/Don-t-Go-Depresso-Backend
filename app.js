@@ -52,6 +52,16 @@ app.use("/college", collegeRouter);
 app.use("/student", studentRouter);
 errorHandling(app);
 
-app.listen(PORT, () => {
+const http = require("http")
+const server = http.createServer(app);
+const socket = require("socket.io")
+const io = require("socket.io")(server, {
+	cors: {
+		origin: "*",
+		methods: [ "GET", "POST" ]
+	}
+})
+require("./controllers/videoCallController").videoCallSetup(io);
+server.listen(PORT, () => {
   console.log(`Server is live at ${PORT}`);
 });
