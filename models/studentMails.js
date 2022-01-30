@@ -2,14 +2,18 @@ const mongoose = require('mongoose')
 
 const studenMailsSchema = new mongoose.Schema({
     studentMail: {
-        type: String
+        type: String,
+        required : true,
+        unique : true
     },
     studentClgCode: {
-        type: String
+        type: String,
+        required : true
     },
     studentClg: {
         type: String,
-        ref: 'College'
+        ref: 'College',
+        required : true
     }
 })
 

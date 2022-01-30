@@ -67,6 +67,7 @@ passport.use(
       secretOrKey: process.env.SECRET,
     },
     (jwtPayload, done) => {
+      console.log(jwtPayload)
       if (jwtPayload.role == "student")
         return Student.findById(jwtPayload.id)
           .select("-password")
@@ -76,7 +77,7 @@ passport.use(
           .catch((err) => {
             return done(err);
           });
-      else jwtPayload.role == "college";
+      else if(jwtPayload.role == "college")
       return College.findById(jwtPayload.id)
         .select("-password")
         .then((user) => {

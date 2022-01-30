@@ -16,5 +16,5 @@ router.post('/signin', collegeController.signin)
 router.use(passport.authenticate('jwt', { session: false }));
 router.post('/student-mails', collegeController.studentMails);
 router.get('/get-emails', collegeController.getMails)
-
+// router.post('/addbulkmails',collegeController.addEmailExcel);
 module.exports = router

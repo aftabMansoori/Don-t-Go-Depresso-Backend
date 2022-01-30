@@ -16,10 +16,18 @@ const PORT = process.env.PORT || 5000;
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const multer = require('multer');
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 50 * 1024 * 1024
+    }
+  });
+app.use(upload.any());
 
 //Mongoose Connection
 mongoose
-  .connect(process.env.DATABASE || "mongodb://localhost:27017/dontGoDepresso")
+  .connect(process.env.DATABASE || "mongodb://localhost:27017/dontGoDepresso?retryWrites=true&w=majority")
   .then(() => {
     console.log("Database Connected");
   })
