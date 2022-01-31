@@ -3,8 +3,7 @@ const mongoose = require('mongoose')
 const studenMailsSchema = new mongoose.Schema({
     studentMail: {
         type: String,
-        required : true,
-        unique : true
+        required : true
     },
     studentClgCode: {
         type: String,

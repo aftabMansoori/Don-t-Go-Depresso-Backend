@@ -2,7 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const app = express();
-
+var json2xls = require('json2xls');
 const mongoose = require("mongoose");
 const helmet = require("helmet");
 const passport = require("passport");
@@ -12,6 +12,7 @@ const passport = require("passport");
 require("./config/passport");
 
 const PORT = process.env.PORT || 5000;
+app.use(json2xls.middleware);
 
 app.use(helmet());
 app.use(express.json());

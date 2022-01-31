@@ -123,43 +123,59 @@ exports.getMails = catchAsync(async (req, res) => {
     mails: college[0].studentMails,
   });
 });
-// const ExcelJS = require('exceljs');
-// var xlsx = require('node-xlsx').default;
-// module.exports.getEmailExcel = catchAsync(async(req,res,next)=>{
-//   let userEmailData
-// })
-// module.exports.addEmailExcel = catchAsync(async(req,res,next)=>{
-//     const excelfile = req.files[0];
-//     const workSheetsFromBuffer = xlsx.parse(excelfile.buffer);
-//     workSheetsFromBuffer[0].data.shift();
-//     let emailBulk = await Promise.all(workSheetsFromBuffer[0].data.map(async el => {
-//       if(el[0])
-//         return {
-//           studentMail: el[0],
-//           studentClgCode: req.user.collegeCode,
-//           studentClg: req.user._id
-//         }
-//         else return null;
-//     }))
-//     emailBulk = emailBulk.filter(n => n)
-//     console.log(emailBulk)
-//     const session = await StudentMails.startSession();
-//     const createdMails = await session.withTransaction(async () => {
-//       return StudentMails.create(emailBulk, { session: session });
-//       // console.log(1)
-//       //   let createdMails =await StudentMails.create(emailBulk, { session: session });
-//       //   let mail = await Promise.all(createdMails.map(el=>{
-//       //     return el._id;
-//       //   }))
-//       //   console.log(createdMails);
-//       //   console.log(mail);
-//       //   let college = await College.findOne({ collegeCode: req.user.collegeCode });
-//       //   college.studentMails.push(mail);
-//       //   college.save();
-//       //   return createdMails;
-//     });
-//     console.log(createdMails)
-//     res.status(201).json({
-//         message: "The Sellers has been created",
-//     })
-// })
+const ExcelJS = require("exceljs");
+var xlsx = require("node-xlsx").default;
+module.exports.getEmailExcel = catchAsync(async (req, res, next) => {
+  let collegeData = await College.findOne({
+    collegeCode: req.user.collegeCode,
+  }).populate("studentMails", "studentMail");
+  let collegeEmailsList = await Promise.all(
+    collegeData.studentMails.map((el) => {
+      return el.studentMail;
+    })
+  );
+  let xlsFormat = await Promise.all(
+    collegeEmailsList.map(async (email) => {
+      let row = {};
+      row.email = email;
+      return row;
+    })
+  );
+  res.xls("data.xlsx", xlsFormat);
+});
+module.exports.addEmailExcel = catchAsync(async (req, res, next) => {
+  const excelfile = req.files[0];
+  const workSheetsFromBuffer = xlsx.parse(excelfile.buffer);
+  workSheetsFromBuffer[0].data.shift();
+  let emailBulk = await Promise.all(
+    workSheetsFromBuffer[0].data.map(async (el) => {
+      if (el[0])
+        return {
+          studentMail: el[0],
+          studentClgCode: req.user.collegeCode,
+          studentClg: req.user._id,
+        };
+      else return null;
+    })
+  );
+  emailBulk = emailBulk.filter((n) => n);
+  const session = await StudentMails.startSession();
+  await session.withTransaction(async () => {
+    let createdMails = await StudentMails.create(emailBulk, {
+      session: session,
+    });
+    let mail = await Promise.all(
+      createdMails.map((el) => {
+        return el._id;
+      })
+    );
+    await College.findOneAndUpdate(
+      { collegeCode: req.user.collegeCode },
+      { $push: { studentMails: { $each: mail } } }
+    );
+    return createdMails;
+  });
+  res.status(201).json({
+    message: "The Mails has been created",
+  });
+});
