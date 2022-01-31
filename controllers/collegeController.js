@@ -50,9 +50,13 @@ exports.signin = (req, res, next) => {
     }
     req.login(user, { session: false }, async (err) => {
       if (err) throw err;
-      const token = jwt.sign({ id: user._id.toJSON(),role : user.role }, process.env.SECRET, {
-        expiresIn: 604800,
-      });
+      const token = jwt.sign(
+        { id: user._id.toJSON(), role: user.role },
+        process.env.SECRET,
+        {
+          expiresIn: 604800,
+        }
+      );
       res.status(200).json({
         message: info.message,
         token: token,
@@ -122,7 +126,7 @@ exports.getMails = catchAsync(async (req, res) => {
 // const ExcelJS = require('exceljs');
 // var xlsx = require('node-xlsx').default;
 // module.exports.getEmailExcel = catchAsync(async(req,res,next)=>{
-//   let userEmailData 
+//   let userEmailData
 // })
 // module.exports.addEmailExcel = catchAsync(async(req,res,next)=>{
 //     const excelfile = req.files[0];

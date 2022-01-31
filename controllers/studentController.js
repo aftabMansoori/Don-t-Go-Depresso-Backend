@@ -38,9 +38,13 @@ exports.signin = (req, res, next) => {
     }
     req.login(user, { session: false }, async (err) => {
       if (err) throw err;
-      const token = jwt.sign({ id: user._id.toJSON() , role : user.role}, process.env.SECRET, {
-        expiresIn: 604800,
-      });
+      const token = jwt.sign(
+        { id: user._id.toJSON(), role: user.role },
+        process.env.SECRET,
+        {
+          expiresIn: 604800,
+        }
+      );
       res.status(200).json({
         message: info.message,
         token: token,
@@ -68,7 +72,6 @@ exports.studentProfile = catchAsync(async (req, res) => {
     studentAge,
     aboutStudent,
   } = req.body;
-  console.log(req.user)
   const student = await StudentMails.findOne({
     studentMail: req.user.studentClgEmail,
   });
@@ -82,7 +85,7 @@ exports.studentProfile = catchAsync(async (req, res) => {
       studentPhoneNo,
       studentAge,
       aboutStudent,
-      // studentClgName,
+      studentClgName,
     }
   );
   res.json({

@@ -67,7 +67,7 @@ passport.use(
       secretOrKey: process.env.SECRET,
     },
     (jwtPayload, done) => {
-      console.log(jwtPayload)
+      // console.log(jwtPayload)
       if (jwtPayload.role == "student")
         return Student.findById(jwtPayload.id)
           .select("-password")
@@ -77,15 +77,15 @@ passport.use(
           .catch((err) => {
             return done(err);
           });
-      else if(jwtPayload.role == "college")
-      return College.findById(jwtPayload.id)
-        .select("-password")
-        .then((user) => {
-          return done(null, user);
-        })
-        .catch((err) => {
-          return done(err);
-        });
+      else if (jwtPayload.role == "college")
+        return College.findById(jwtPayload.id)
+          .select("-password")
+          .then((user) => {
+            return done(null, user);
+          })
+          .catch((err) => {
+            return done(err);
+          });
     }
   )
 );
