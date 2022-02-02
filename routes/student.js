@@ -11,8 +11,7 @@ router.get("/", (req, res) => {
 router.get("/signout", studentController.signout);
 router.post("/signup", studentController.signup);
 router.post("/signin", studentController.signin);
-router.post("/profile", studentController.studentProfile);
-
 router.use(passport.authenticate("jwt", { session: false }));
+router.post("/profile", studentController.studentProfile);
 
 module.exports = router;

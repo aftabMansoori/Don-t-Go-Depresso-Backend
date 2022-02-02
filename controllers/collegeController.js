@@ -50,9 +50,13 @@ exports.signin = (req, res, next) => {
     }
     req.login(user, { session: false }, async (err) => {
       if (err) throw err;
-      const token = jwt.sign({ id: user._id.toJSON() }, process.env.SECRET, {
-        expiresIn: 604800,
-      });
+      const token = jwt.sign(
+        { id: user._id.toJSON(), role: user.role },
+        process.env.SECRET,
+        {
+          expiresIn: 604800,
+        }
+      );
       res.status(200).json({
         message: info.message,
         token: token,
@@ -117,5 +121,64 @@ exports.getMails = catchAsync(async (req, res) => {
   res.status(200).json({
     status: "Successful",
     mails: college[0].studentMails,
+  });
+});
+
+const ExcelJS = require("exceljs");
+var xlsx = require("node-xlsx").default;
+
+module.exports.getEmailExcel = catchAsync(async (req, res, next) => {
+  let collegeData = await College.findOne({
+    collegeCode: req.user.collegeCode,
+  }).populate("studentMails", "studentMail");
+  let collegeEmailsList = await Promise.all(
+    collegeData.studentMails.map((el) => {
+      return el.studentMail;
+    })
+  );
+  let xlsFormat = await Promise.all(
+    collegeEmailsList.map(async (email) => {
+      let row = {};
+      row.email = email;
+      return row;
+    })
+  );
+  res.xls("data.xlsx", xlsFormat);
+});
+
+module.exports.addEmailExcel = catchAsync(async (req, res, next) => {
+  const excelfile = req.files[0];
+  const workSheetsFromBuffer = xlsx.parse(excelfile.buffer);
+  workSheetsFromBuffer[0].data.shift();
+  let emailBulk = await Promise.all(
+    workSheetsFromBuffer[0].data.map(async (el) => {
+      if (el[0])
+        return {
+          studentMail: el[0],
+          studentClgCode: req.user.collegeCode,
+          studentClg: req.user._id,
+        };
+      else return null;
+    })
+  );
+  emailBulk = emailBulk.filter((n) => n);
+  const session = await StudentMails.startSession();
+  await session.withTransaction(async () => {
+    let createdMails = await StudentMails.create(emailBulk, {
+      session: session,
+    });
+    let mail = await Promise.all(
+      createdMails.map((el) => {
+        return el._id;
+      })
+    );
+    await College.findOneAndUpdate(
+      { collegeCode: req.user.collegeCode },
+      { $push: { studentMails: { $each: mail } } }
+    );
+    return createdMails;
+  });
+  res.status(201).json({
+    message: "The Mails has been created",
   });
 });

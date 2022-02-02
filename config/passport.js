@@ -76,15 +76,15 @@ passport.use(
           .catch((err) => {
             return done(err);
           });
-      else jwtPayload.role == "college";
-      return College.findById(jwtPayload.id)
-        .select("-password")
-        .then((user) => {
-          return done(null, user);
-        })
-        .catch((err) => {
-          return done(err);
-        });
+      else if (jwtPayload.role == "college")
+        return College.findById(jwtPayload.id)
+          .select("-password")
+          .then((user) => {
+            return done(null, user);
+          })
+          .catch((err) => {
+            return done(err);
+          });
     }
   )
 );
