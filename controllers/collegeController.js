@@ -123,8 +123,10 @@ exports.getMails = catchAsync(async (req, res) => {
     mails: college[0].studentMails,
   });
 });
+
 const ExcelJS = require("exceljs");
 var xlsx = require("node-xlsx").default;
+
 module.exports.getEmailExcel = catchAsync(async (req, res, next) => {
   let collegeData = await College.findOne({
     collegeCode: req.user.collegeCode,
@@ -143,6 +145,7 @@ module.exports.getEmailExcel = catchAsync(async (req, res, next) => {
   );
   res.xls("data.xlsx", xlsFormat);
 });
+
 module.exports.addEmailExcel = catchAsync(async (req, res, next) => {
   const excelfile = req.files[0];
   const workSheetsFromBuffer = xlsx.parse(excelfile.buffer);

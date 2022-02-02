@@ -2,10 +2,11 @@ require("dotenv").config();
 
 const express = require("express");
 const app = express();
-var json2xls = require('json2xls');
+var json2xls = require("json2xls");
 const mongoose = require("mongoose");
 const helmet = require("helmet");
 const passport = require("passport");
+const cors = require("cors");
 // const session = require('express-session')
 
 //Passport Config
@@ -25,6 +26,12 @@ const upload = multer({
   },
 });
 app.use(upload.any());
+app.use(
+  cors({
+    origin: ["http://localhost:3000/"],
+    methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"],
+  })
+);
 
 //Mongoose Connection
 mongoose
