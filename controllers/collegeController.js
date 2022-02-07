@@ -16,7 +16,7 @@ exports.signup = catchAsync(async (req, res) => {
     collegePhoneNo,
     collegeAddress,
     collegeLocation,
-  } = req.body;
+  } = req.body.college;
   if (password === confPassword) {
     let college = new College({
       collegeCode,
