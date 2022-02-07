@@ -1,19 +1,19 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 const studenMailsSchema = new mongoose.Schema({
-    studentMail: {
-        type: String,
-        required : true
-    },
-    studentClgCode: {
-        type: String,
-        required : true
-    },
-    studentClg: {
-        type: String,
-        ref: 'College',
-        required : true
-    }
-})
+  studentMail: {
+    type: String,
+    required: true,
+  },
+  studentClgCode: {
+    type: String,
+    required: true,
+  },
+  studentClg: {
+    type: String,
+    ref: "College",
+    required: true,
+  },
+});
 
-module.exports = mongoose.model('StudentMails', studenMailsSchema)
+module.exports = mongoose.model("StudentMails", studenMailsSchema);

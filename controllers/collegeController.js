@@ -16,7 +16,7 @@ exports.signup = catchAsync(async (req, res) => {
     collegePhoneNo,
     collegeAddress,
     collegeLocation,
-  } = req.body.college;
+  } = req.body;
   if (password === confPassword) {
     let college = new College({
       collegeCode,
@@ -94,6 +94,7 @@ exports.signout = (req, res) => {
 exports.studentMails = catchAsync(async (req, res) => {
   let { studentMail } = req.body;
   let mail = await StudentMails.findOne({ studentMail });
+
   if (mail) {
     res.status(400).json({
       status: "Error",
@@ -103,6 +104,7 @@ exports.studentMails = catchAsync(async (req, res) => {
     mail = await new StudentMails({
       studentMail,
       studentClg: req.user.collegeName,
+      studentClgCode: req.user.collegeCode,
     }).save();
     let college = await College.findOne({ collegeCode: req.user.collegeCode });
     college.studentMails.push(mail);

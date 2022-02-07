@@ -64,29 +64,14 @@ exports.signout = (req, res) => {
 };
 
 exports.studentProfile = catchAsync(async (req, res) => {
-  const {
-    studentName,
-    studentPRN,
-    studentClass,
-    studentPhoneNo,
-    studentAge,
-    aboutStudent,
-  } = req.body;
+  const profile = req.body.profile;
   const student = await StudentMails.findOne({
     studentMail: req.user.studentClgEmail,
   });
   studentClgName = student.studentClg;
   await Student.findOneAndUpdate(
     { studentClgEmail: req.user.studentClgEmail },
-    {
-      studentName,
-      studentPRN,
-      studentClass,
-      studentPhoneNo,
-      studentAge,
-      aboutStudent,
-      studentClgName,
-    }
+    profile
   );
   res.json({
     status: "Successful",
