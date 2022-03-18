@@ -14,7 +14,7 @@ router.post("/signup", collegeController.signup);
 router.post("/signin", collegeController.signin);
 
 router.use(passport.authenticate("jwt", { session: false }));
-router.post("/student-mails", collegeController.studentMails);
+router.post("/add-mails", collegeController.studentMails);
 router.get("/get-emails", collegeController.getMails);
 
 router.get("/getemailexcel", collegeController.getEmailExcel);

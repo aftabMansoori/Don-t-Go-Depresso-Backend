@@ -65,12 +65,12 @@ exports.signout = (req, res) => {
 
 exports.studentProfile = catchAsync(async (req, res) => {
   const profile = req.body.profile;
-  const student = await StudentMails.findOne({
-    studentMail: req.user.studentClgEmail,
-  });
-  studentClgName = student.studentClg;
+  // const student = await StudentMails.findOne({
+  //   studentMail: req.user.studentClgEmail,
+  // });
+  // studentClgName = student.studentClg;
   await Student.findOneAndUpdate(
-    { studentClgEmail: req.user.studentClgEmail },
+    // { studentClgEmail: req.user.studentClgEmail },
     profile
   );
   res.json({
