@@ -14,6 +14,10 @@ const studenMailsSchema = new mongoose.Schema({
     ref: "College",
     required: true,
   },
+  registeredDate: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("StudentMails", studenMailsSchema);

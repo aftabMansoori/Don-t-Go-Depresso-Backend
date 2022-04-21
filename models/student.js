@@ -60,6 +60,10 @@ const studentSchema = new mongoose.Schema({
     type: String,
     default: "student",
   },
+  registeredDate: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("Student", studentSchema);

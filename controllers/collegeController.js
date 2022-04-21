@@ -120,7 +120,6 @@ exports.getMails = catchAsync(async (req, res) => {
   let college = await College.find({
     collegeCode: req.user.collegeCode,
   }).populate("studentMails", "studentMail");
-  console.log(req.user);
   res.status(200).json({
     status: "Successful",
     mails: college[0].studentMails,
