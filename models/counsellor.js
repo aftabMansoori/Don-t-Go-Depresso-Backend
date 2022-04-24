@@ -8,16 +8,12 @@ const counsellorSchema = new mongoose.Schema({
   },
   counsellorName: {
     type: String,
-    required: true,
   },
   counsellorNo: {
     type: Number,
-    required: true,
-    unique : true
   },
   counsellorEmail: {
     type: String,
-    unique : true
   },
   cousellorPassword : {
     type: String,

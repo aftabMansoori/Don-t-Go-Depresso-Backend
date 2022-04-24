@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const College = require("../models/college");
 const StudentMails = require("../models/studentMails");
-
+const Counsellor = require("./../models/counsellor");
 const { catchAsync } = require("../Utils/ErrorHandling");
 
 exports.signup = catchAsync(async (req, res) => {
@@ -184,3 +184,13 @@ module.exports.addEmailExcel = catchAsync(async (req, res, next) => {
     message: "The Mails has been created",
   });
 });
+
+module.exports.addCounsellor = catchAsync(async(req,res,next)=>{
+  let counsellorDetails = req.body;
+  counsellorDetails.cousellorPassword = await bcrypt.hash(counsellorDetails.password, parseInt(process.env.Salt));
+  let counsellorCreated = await Counsellor.create(counsellorDetails);
+  res.status(201).json({
+    message : "User Created",
+    counsellor : counsellorCreated
+  })
+})

@@ -19,4 +19,6 @@ router.get("/get-emails", collegeController.getMails);
 
 router.get("/getemailexcel", collegeController.getEmailExcel);
 router.post("/addbulkmails", collegeController.addEmailExcel);
+
+router.post("/addcounsellor",collegeController.addCounsellor);
 module.exports = router;

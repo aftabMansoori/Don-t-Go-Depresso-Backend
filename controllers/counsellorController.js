@@ -66,10 +66,56 @@ exports.acceptSchedule = catchAsync(async(req,res,next)=>{
   }
   let updatedSchedule = await Schedule.findByIdAndUpdate(appoitmentID,{
     scheduleTime : scheduleTime,
-    scheduleType : "Scheduled"
+    scheduleType : "Scheduled",
   },{new: true})
   res.status(200).json({
     message : "Schedule accepted",
+    scheduleDetails : updatedSchedule
+  })
+})
+
+exports.getallappointment = catchAsync(async(req,res,next)=>{
+  let scheduledList = await Schedule.aggregate([
+    {
+      $facet :{
+        history : [{$match : {$and : [
+          {counsellorID : req.user._id},
+          {scheduleType:"History"}
+        ]}}],
+        scheduled : [{$match : {$and : [
+          {counsellorID : req.user._id},
+          {scheduleType:"Scheduled"}
+        ]}}],
+        appointment :[{$match : {$and : [
+          {counsellorID : req.user._id},
+          {scheduleType:"Appointment"}
+        ]}}]
+      }
+    }
+  ])
+  res.status(200).json({
+    message: "The Appointments are",
+    scheduledList
+  })
+})
+
+exports.endmeeting = catchAsync(async(req,res,next)=>{
+  let appoitmentID = req.body.appoitmentID
+  let appointmentDetails = await Schedule.findOne({$and : [
+    {_id : mongoose.Types.ObjectId(appoitmentID)},
+    {counsellorID : req.user._id}
+  ]});
+  if(!appointmentDetails){
+    res.status(200).json({
+      message : "Schedule Does not Exist"
+    })
+    return;
+  }
+  let updatedSchedule = await Schedule.findByIdAndUpdate(appoitmentID,{
+    scheduleType : "History",
+  },{new: true})
+  res.status(200).json({
+    message : "Meeting Ended",
     scheduleDetails : updatedSchedule
   })
 })

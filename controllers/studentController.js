@@ -98,3 +98,13 @@ exports.scheduleAppointment = catchAsync(async(req,res,next)=>{
     schedule : createdScehdule
   })
 })
+
+exports.getallappointments = catchAsync(async(req,res,next)=>{
+  let scheduledList =await Schedule.find({$and : [
+    {studentID : req.user._id}
+  ]})
+  res.status(200).json({
+    message: "The Appointments are",
+    scheduledList
+  })
+})
