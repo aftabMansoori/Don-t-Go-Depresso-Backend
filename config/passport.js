@@ -8,6 +8,7 @@ const ExtractJWT = passportJWT.ExtractJwt;
 // Load User model
 const College = require("../models/college");
 const Student = require("../models/student");
+const Counsellor = require("../models/counsellor");
 
 const authenticateUser = (req, username, password, done) => {
   if (req.body.role === "college") {
@@ -39,6 +40,23 @@ const authenticateUser = (req, username, password, done) => {
         if (err) throw err;
         if (isMatch)
           return done(null, student, { message: "Login Successful" });
+        else
+          return done(null, false, {
+            message: "Username or password is incorrect",
+          });
+      });
+    });
+  }else if (req.body.role === "counsellor") {
+    Counsellor.findOne({
+      counsellorUserName: username,
+    }).then((counsellor) => {
+      if (!counsellor) {
+        return done(null, false, { message: "Counsellor is not registered" });
+      }
+      bcrypt.compare(password, counsellor.cousellorPassword, (err, isMatch) => {
+        if (err) throw err;
+        if (isMatch)
+          return done(null, counsellor, { message: "Login Successful" });
         else
           return done(null, false, {
             message: "Username or password is incorrect",
@@ -78,6 +96,15 @@ passport.use(
           });
       else if (jwtPayload.role == "college")
         return College.findById(jwtPayload.id)
+          .select("-password")
+          .then((user) => {
+            return done(null, user);
+          })
+          .catch((err) => {
+            return done(err);
+          });
+      else if (jwtPayload.role == "counsellor")
+        return Counsellor.findById(jwtPayload.id)
           .select("-password")
           .then((user) => {
             return done(null, user);

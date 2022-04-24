@@ -5,6 +5,8 @@ const jwt = require("jsonwebtoken");
 const Student = require("../models/student");
 const StudentMails = require("../models/studentMails");
 const { catchAsync } = require("../Utils/ErrorHandling");
+const Schedule = require("../models/schedule");
+const Counsellor = require("../models/counsellor");
 
 exports.signup = catchAsync(async (req, res) => {
   const { studentClgEmail, studentClgCode, password, confPassword } =
@@ -79,3 +81,20 @@ exports.studentProfile = catchAsync(async (req, res) => {
     message: "Profile Saved",
   });
 });
+
+exports.scheduleAppointment = catchAsync(async(req,res,next)=>{
+  let scheduleDetails = req.body  
+  let counsellor = await Counsellor.findById(req.body.counsellorID);
+  if(!counsellor){
+    res.status(200).json({
+      message : "Counsellor Not Found"
+    })
+    return;
+  }
+  scheduleDetails.studentID = req.user._id;
+  let createdScehdule  = await Schedule.create(scheduleDetails)
+  res.status(201).json({
+    message : "Appointment has been schedule",
+    schedule : createdScehdule
+  })
+})

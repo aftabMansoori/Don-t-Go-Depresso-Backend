@@ -13,5 +13,5 @@ router.post("/signup", studentController.signup);
 router.post("/signin", studentController.signin);
 router.use(passport.authenticate("jwt", { session: false }));
 router.post("/profile", studentController.studentProfile);
-
+router.post("/scheduleappointment",studentController.scheduleAppointment);
 module.exports = router;

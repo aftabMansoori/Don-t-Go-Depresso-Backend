@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const counsellorSchema = new mongoose.Schema({
+  counsellorUserName: {
+    type: String,
+    required: true,
+    unique : true
+  },
   counsellorName: {
     type: String,
     required: true,
@@ -8,12 +13,18 @@ const counsellorSchema = new mongoose.Schema({
   counsellorNo: {
     type: Number,
     required: true,
+    unique : true
   },
   counsellorEmail: {
     type: String,
+    unique : true
+  },
+  cousellorPassword : {
+    type: String,
+    required : true
   },
   counsellorExp: {
-    type: mixed,
+    type: mongoose.SchemaTypes.Mixed,
   },
   aboutCounsellor: {
     type: String,

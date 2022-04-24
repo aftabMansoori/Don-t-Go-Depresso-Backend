@@ -61,6 +61,7 @@ app.use(passport.initialize());
 //Routers
 const collegeRouter = require("./routes/college");
 const studentRouter = require("./routes/student");
+const counsellorRouter = require("./routes/counsellor");
 const { errorHandling } = require("./Utils/ErrorHandling");
 
 app.get("/", (req, res) => {
@@ -69,6 +70,7 @@ app.get("/", (req, res) => {
 
 app.use("/college", collegeRouter);
 app.use("/student", studentRouter);
+app.use("/counsellor", counsellorRouter);
 errorHandling(app);
 
 const http = require("http");
