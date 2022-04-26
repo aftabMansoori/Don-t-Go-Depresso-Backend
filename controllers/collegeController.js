@@ -185,12 +185,15 @@ module.exports.addEmailExcel = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports.addCounsellor = catchAsync(async(req,res,next)=>{
+module.exports.addCounsellor = catchAsync(async (req, res, next) => {
   let counsellorDetails = req.body;
-  counsellorDetails.cousellorPassword = await bcrypt.hash(counsellorDetails.password, parseInt(process.env.Salt));
+  counsellorDetails.cousellorPassword = await bcrypt.hash(
+    counsellorDetails.password,
+    parseInt(process.env.Salt)
+  );
   let counsellorCreated = await Counsellor.create(counsellorDetails);
   res.status(201).json({
-    message : "User Created",
-    counsellor : counsellorCreated
-  })
-})
+    message: "User Created",
+    counsellor: counsellorCreated,
+  });
+});

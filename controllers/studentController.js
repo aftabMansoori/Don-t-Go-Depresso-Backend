@@ -76,35 +76,53 @@ exports.studentProfile = catchAsync(async (req, res) => {
     { studentClgEmail: req.user.studentClgEmail },
     profile
   );
-  res.json({
+  res.status(200).json({
     status: "Successful",
     message: "Profile Saved",
   });
 });
 
-exports.scheduleAppointment = catchAsync(async(req,res,next)=>{
-  let scheduleDetails = req.body  
+exports.scheduleAppointment = catchAsync(async (req, res, next) => {
+  let scheduleDetails = req.body;
   let counsellor = await Counsellor.findById(req.body.counsellorID);
-  if(!counsellor){
+  if (!counsellor) {
     res.status(200).json({
-      message : "Counsellor Not Found"
-    })
+      message: "Counsellor Not Found",
+    });
     return;
   }
   scheduleDetails.studentID = req.user._id;
-  let createdScehdule  = await Schedule.create(scheduleDetails)
+  let createdScehdule = await Schedule.create(scheduleDetails);
   res.status(201).json({
-    message : "Appointment has been schedule",
-    schedule : createdScehdule
-  })
-})
+    message: "Appointment has been schedule",
+    schedule: createdScehdule,
+  });
+});
 
-exports.getallappointments = catchAsync(async(req,res,next)=>{
-  let scheduledList =await Schedule.find({$and : [
-    {studentID : req.user._id}
-  ]})
+exports.getallappointments = catchAsync(async (req, res, next) => {
+  let scheduledList = await Schedule.find({
+    $and: [{ studentID: req.user._id }],
+  });
   res.status(200).json({
     message: "The Appointments are",
-    scheduledList
-  })
-})
+    scheduledList,
+  });
+});
+
+exports.saveQuestionaire = catchAsync(async (req, res) => {
+  let questionaire = req.body;
+  let student = await Student.findById(req.user.id);
+  student.questionaire.push(questionaire);
+  student.save();
+  res.status(200).json({
+    message: "Questionaire added",
+  });
+});
+
+exports.getResponse = catchAsync(async (req, res) => {
+  let student = await Student.findById(req.user.id);
+  res.status(200).json({
+    message: "Response fetch successfull",
+    response: student.questionaire,
+  });
+});

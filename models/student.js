@@ -64,6 +64,17 @@ const studentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  questionaire: [
+    {
+      answers: {
+        type: [],
+      },
+      time: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
 });
 
 module.exports = mongoose.model("Student", studentSchema);
