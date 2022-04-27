@@ -20,6 +20,8 @@ const scheduleSchema = new mongoose.Schema({
         required : true,
         default : "Appointment"
     }
+},{
+    timestamps : true,
 })
 
 module.exports = mongoose.model('Schedule', scheduleSchema)

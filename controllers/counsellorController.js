@@ -83,6 +83,43 @@ exports.acceptSchedule = catchAsync(async (req, res, next) => {
 });
 
 exports.getallappointment = catchAsync(async (req, res, next) => {
+  let pipeline = [ 
+      {
+        $lookup: {
+          from: "students",
+          localField: "studentID",
+          foreignField: "_id",
+          as: "studentData"
+        },
+      },
+      {
+        $lookup: {
+          from: "counsellors",
+          localField: "counsellorID",
+          foreignField: "_id",
+          as: "counsellorData"
+        },
+      },
+      {
+        $unwind: "$studentData"
+      },
+      {
+        $unwind: "$counsellorData"
+      }
+      , {
+        $project: {
+          "studentData._id": 1,
+          "counsellorData._id" : 1,
+          "counsellorData.counsellorName" : 1,
+          "counsellorData.counsellorUserName" : 1,
+          "studentData.studentName": 1,
+          "scheduleTime" : 1,
+          "createdAt" : 1,
+          "scheduleType" : 1
+        }
+      }
+  ]
+  console.log(...pipeline)
   let scheduledList = await Schedule.aggregate([
     {
       $facet: {
@@ -93,8 +130,9 @@ exports.getallappointment = catchAsync(async (req, res, next) => {
                 { counsellorID: req.user._id },
                 { scheduleType: "History" },
               ],
-            },
+            }
           },
+          ...pipeline
         ],
         scheduled: [
           {
@@ -105,6 +143,7 @@ exports.getallappointment = catchAsync(async (req, res, next) => {
               ],
             },
           },
+          ...pipeline
         ],
         appointment: [
           {
@@ -113,8 +152,9 @@ exports.getallappointment = catchAsync(async (req, res, next) => {
                 { counsellorID: req.user._id },
                 { scheduleType: "Appointment" },
               ],
-            },
+            }
           },
+          ...pipeline
         ],
       },
     },

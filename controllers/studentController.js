@@ -103,7 +103,15 @@ exports.scheduleAppointment = catchAsync(async (req, res, next) => {
 exports.getallappointments = catchAsync(async (req, res, next) => {
   let scheduledList = await Schedule.find({
     $and: [{ studentID: req.user._id }],
-  });
+  }).populate({
+    path : "counsellorID",
+    select : {_id : 1 , counsellorUserName : 1 , counsellorName : 1}
+  })
+  .populate({
+    path : "studentID",
+    select : {_id : 1 ,  studentName : 1}
+  })
+  ;
   res.status(200).json({
     message: "The Appointments are",
     scheduledList,
