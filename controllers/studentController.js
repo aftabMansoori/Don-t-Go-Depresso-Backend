@@ -7,6 +7,7 @@ const StudentMails = require("../models/studentMails");
 const { catchAsync } = require("../Utils/ErrorHandling");
 const Schedule = require("../models/schedule");
 const Counsellor = require("../models/counsellor");
+const College = require("../models/college");
 
 exports.signup = catchAsync(async (req, res) => {
   const { studentClgEmail, studentClgCode, password, confPassword } =
@@ -125,4 +126,12 @@ exports.getResponse = catchAsync(async (req, res) => {
     message: "Response fetch successfull",
     response: student.questionaire,
   });
+});
+
+exports.getCounsellors = catchAsync(async (req, res, next) => {
+  let college = await College.findOne({
+    collegeCode: req.user.studentClgCode,
+  }).populate("counsellor", "counsellorUserName");
+  let counsellors = college.counsellor;
+  res.status(200).json({ status: "Successful", counsellor: counsellors });
 });

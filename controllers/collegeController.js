@@ -192,8 +192,21 @@ module.exports.addCounsellor = catchAsync(async (req, res, next) => {
     parseInt(process.env.Salt)
   );
   let counsellorCreated = await Counsellor.create(counsellorDetails);
+  let college = await College.findOne({ collegeCode: req.user.collegeCode });
+  college.counsellor.push(counsellorCreated);
+  college.save();
   res.status(201).json({
     message: "User Created",
     counsellor: counsellorCreated,
+  });
+});
+
+module.exports.getCounsellor = catchAsync(async (req, res) => {
+  let college = await College.find({
+    collegeCode: req.user.collegeCode,
+  }).populate("counsellor", "counsellorUserName");
+  res.status(200).json({
+    status: "Successful",
+    counsellor: college[0].counsellor,
   });
 });

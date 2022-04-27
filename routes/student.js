@@ -17,4 +17,5 @@ router.post("/scheduleappointment", studentController.scheduleAppointment);
 router.get("/getallappointments", studentController.getallappointments);
 router.post("/save-questionaire", studentController.saveQuestionaire);
 router.get("/response", studentController.getResponse);
+router.get("/get-counsellors", studentController.getCounsellors);
 module.exports = router;

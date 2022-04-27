@@ -28,6 +28,10 @@ const collegeSchema = new mongoose.Schema({
     type: [mongoose.Schema.Types.ObjectId],
     ref: "StudentMails",
   },
+  counsellor: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Counsellor",
+  },
   registeredDate: {
     type: Date,
     default: Date.now,

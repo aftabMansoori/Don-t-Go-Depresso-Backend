@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const studentSchema = new mongoose.Schema({
   studentClgCode: {
-    type: String,
+    type: Number,
   },
   studentClgEmail: {
     type: String,
